@@ -2,32 +2,28 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.home-page__content {
+.home-page__main {
   flex: 1;
-  padding: 32px 20px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
 }
 
-.home-page__heading {
-  font-size: 22px;
-  margin-bottom: 20px;
+.home-page__products {
+  margin-top: 2rem;
 }
 
-.home-page__grid {
+.home-page__products h2 {
+  margin-bottom: 1rem;
+}
+
+.home-page__product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 992px) {
-  .home-page__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .home-page__grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
 }

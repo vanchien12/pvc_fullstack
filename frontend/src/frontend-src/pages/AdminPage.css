@@ -1,0 +1,116 @@
+.admin-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 230px;
+  background-color: var(--color-text);
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+}
+
+.admin-sidebar__logo {
+  color: #a5b4fc;
+  font-size: 1.15rem;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.admin-sidebar__link {
+  text-decoration: none;
+  color: #e5e7eb;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.admin-sidebar__link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar__link--active {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.admin-sidebar__logout {
+  margin-top: auto;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e5e7eb;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.admin-sidebar__logout:hover {
+  border-color: #a5b4fc;
+  color: #a5b4fc;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  background-color: var(--color-bg);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.admin-header__user {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-stat-card__label {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+}
+
+.admin-stat-card__value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.admin-placeholder {
+  color: var(--color-text-light);
+  background-color: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--radius);
+  text-align: center;
+}

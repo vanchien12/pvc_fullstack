@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Áo Thun Basic",
+    "price": 199000,
+    "image": "https://placehold.co/300x300/4f46e5/ffffff?text=Ao+Thun",
+    "category": "Áo",
+    "description": "Áo thun cotton 100%, form rộng, thoáng mát."
+  },
+  {
+    "id": 2,
+    "name": "Quần Jeans Slimfit",
+    "price": 459000,
+    "image": "https://placehold.co/300x300/16a34a/ffffff?text=Quan+Jeans",
+    "category": "Quần",
+    "description": "Quần jeans co giãn nhẹ, dáng slimfit hiện đại."
+  },
+  {
+    "id": 3,
+    "name": "Giày Sneaker Trắng",
+    "price": 799000,
+    "image": "https://placehold.co/300x300/dc2626/ffffff?text=Sneaker",
+    "category": "Giày",
+    "description": "Giày sneaker da tổng hợp, đế êm, phối mọi outfit."
+  },
+  {
+    "id": 4,
+    "name": "Túi Đeo Chéo",
+    "price": 350000,
+    "image": "https://placehold.co/300x300/d97706/ffffff?text=Tui+Cheo",
+    "category": "Phụ kiện",
+    "description": "Túi đeo chéo unisex, nhiều ngăn tiện lợi."
+  },
+  {
+    "id": 5,
+    "name": "Áo Khoác Hoodie",
+    "price": 520000,
+    "image": "https://placehold.co/300x300/0891b2/ffffff?text=Hoodie",
+    "category": "Áo",
+    "description": "Hoodie nỉ bông dày dặn, giữ ấm tốt."
+  },
+  {
+    "id": 6,
+    "name": "Mũ Lưỡi Trai",
+    "price": 150000,
+    "image": "https://placehold.co/300x300/7c3aed/ffffff?text=Mu",
+    "category": "Phụ kiện",
+    "description": "Mũ lưỡi trai unisex, điều chỉnh size dễ dàng."
+  },
+  {
+    "id": 7,
+    "name": "Đồng Hồ Đeo Tay",
+    "price": 890000,
+    "image": "https://placehold.co/300x300/be123c/ffffff?text=Dong+Ho",
+    "category": "Phụ kiện",
+    "description": "Đồng hồ mặt tròn, dây da, chống nước."
+  },
+  {
+    "id": 8,
+    "name": "Quần Short Kaki",
+    "price": 280000,
+    "image": "https://placehold.co/300x300/65a30d/ffffff?text=Short",
+    "category": "Quần",
+    "description": "Quần short kaki nam, chất liệu thoáng khí."
+  }
+]

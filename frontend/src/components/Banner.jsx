@@ -1,69 +1,88 @@
-import { useState, useEffect } from 'react'
-import './Banner.css'
+import { useState, useEffect } from "react";
+import "./Banner.css";
 
-// ES6: const + mảng object - dữ liệu banner (giả lập dữ liệu từ API)
-const bannerSlides = [
+const slides = [
   {
     id: 1,
-    title: 'Sale mùa hè - Giảm đến 50%',
-    subtitle: 'Áp dụng cho tất cả sản phẩm thời trang',
-    bgColor: '#ff6b6b',
+    title: "Mùa Sale Cuối Năm",
+    subtitle: "Giảm giá lên đến 50% cho tất cả sản phẩm",
+    gradient: "linear-gradient(135deg, #6366f1 0%, #4338ca 100%)",
   },
   {
     id: 2,
-    title: 'Miễn phí vận chuyển',
-    subtitle: 'Cho đơn hàng từ 500.000đ',
-    bgColor: '#4ecdc4',
+    title: "Hàng Mới Về",
+    subtitle: "Cập nhật xu hướng thời trang mới nhất",
+    gradient: "linear-gradient(135deg, #22c55e 0%, #15803d 100%)",
   },
   {
     id: 3,
-    title: 'Hàng mới về',
-    subtitle: 'Khám phá bộ sưu tập mới nhất',
-    bgColor: '#ffa726',
+    title: "Miễn Phí Vận Chuyển",
+    subtitle: "Cho đơn hàng từ 500.000đ trở lên",
+    gradient: "linear-gradient(135deg, #fb923c 0%, #dc2626 100%)",
   },
-]
+];
+
+// Thời gian tự động chuyển slide (ms)
+const AUTO_SLIDE_INTERVAL = 4000;
 
 const Banner = () => {
-  // React State: lưu index của slide hiện tại
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // React Effect: tự động chuyển slide sau mỗi 3 giây
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  // useEffect: tự động chuyển slide, cleanup interval khi unmount
   useEffect(() => {
     const timer = setInterval(() => {
-      // ES6: arrow function trong setState để tính giá trị mới dựa trên giá trị cũ
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerSlides.length)
-    }, 3000)
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
+    }, AUTO_SLIDE_INTERVAL);
 
-    // cleanup function - tránh memory leak
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
-  // ES6: Destructuring object lấy ra các thuộc tính cần dùng
-  const { title, subtitle, bgColor } = bannerSlides[currentIndex]
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index)
-  }
+  const { title, subtitle, gradient } = slides[currentIndex];
 
   return (
-    <section className="banner" style={{ backgroundColor: bgColor }}>
-      <div className="container banner__content">
+    <section className="banner" style={{ background: gradient }}>
+      <div className="banner__content">
         <h2 className="banner__title">{title}</h2>
         <p className="banner__subtitle">{subtitle}</p>
-        <button className="banner__btn">Mua ngay</button>
+        <button className="banner__cta">Mua ngay</button>
       </div>
 
+      <button
+        className="banner__btn banner__btn--prev"
+        onClick={handlePrev}
+        aria-label="Slide trước"
+      >
+        ‹
+      </button>
+      <button
+        className="banner__btn banner__btn--next"
+        onClick={handleNext}
+        aria-label="Slide kế tiếp"
+      >
+        ›
+      </button>
+
       <div className="banner__dots">
-        {bannerSlides.map((slide, index) => (
+        {slides.map((slide, index) => (
           <span
             key={slide.id}
-            className={`banner__dot ${index === currentIndex ? 'banner__dot--active' : ''}`}
-            onClick={() => goToSlide(index)}
+            className={`banner__dot ${
+              index === currentIndex ? "banner__dot--active" : ""
+            }`}
+            onClick={() => setCurrentIndex(index)}
           />
         ))}
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Banner
+export default Banner;
