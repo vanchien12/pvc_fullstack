@@ -1,40 +1,29 @@
-// Base URL của backend FastAPI
-const API_BASE_URL = "http://localhost:8000/api/v1";
+const BASE_URL = "http://localhost:8000/api/v1";
 
-// Hàm gọi API chung, tự gắn JWT token nếu có trong localStorage
-async function request(endpoint, options = {}) {
-  const token = localStorage.getItem("shophub_token");
+function getToken() {
+  return localStorage.getItem("shophub_token");
+}
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
+async function request(method, path, body = null) {
+  const headers = { "Content-Type": "application/json" };
+  const token = getToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  const options = { method, headers };
+  if (body) options.body = JSON.stringify(body);
+
+  const res = await fetch(`${BASE_URL}${path}`, options);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.detail || data.message || "Có lỗi xảy ra");
   }
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  // Cố gắng parse JSON, nếu rỗng thì trả null
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = data?.detail || "Đã có lỗi xảy ra, vui lòng thử lại.";
-    throw new Error(message);
-  }
-
   return data;
 }
 
 export const apiClient = {
-  get: (endpoint) => request(endpoint, { method: "GET" }),
-  post: (endpoint, body) =>
-    request(endpoint, { method: "POST", body: JSON.stringify(body) }),
-  put: (endpoint, body) =>
-    request(endpoint, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (endpoint) => request(endpoint, { method: "DELETE" }),
+  get:    (path)        => request("GET",    path),
+  post:   (path, body)  => request("POST",   path, body),
+  put:    (path, body)  => request("PUT",    path, body),
+  delete: (path)        => request("DELETE", path),
 };

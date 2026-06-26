@@ -1,119 +1,71 @@
+// frontend/src/pages/RegisterPage.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "./AuthPages.css";
 
-const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+export default function RegisterPage() {
+  const [form, setForm] = useState({ username:"", password:"", confirm:"", email:"" });
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    // Validate ở phía client trước khi gọi API
-    if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp.");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự.");
-      return;
-    }
-
-    setSubmitting(true);
-
+    if (form.password !== form.confirm) return setError("Mật khẩu xác nhận không khớp");
+    if (form.password.length < 6) return setError("Mật khẩu phải có ít nhất 6 ký tự");
+    setLoading(true);
     try {
-      await register(formData);
-      navigate("/", { replace: true });
+      await register(form.username, form.password, form.email);
+      setSuccess("Đăng ký thành công! Đang chuyển hướng...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
+      setError(err.message || "Đăng ký thất bại");
+    } finally { setLoading(false); }
   };
 
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
   return (
-    <div className="auth-page">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-card__title">Tạo tài khoản</h1>
-        <p className="auth-card__subtitle">Tham gia ShopHub miễn phí</p>
-
-        {error && <p className="auth-card__error">{error}</p>}
-
-        <label className="auth-field">
-          <span>Họ tên</span>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Nguyễn Văn A"
-            required
-          />
-        </label>
-
-        <label className="auth-field">
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="ban@email.com"
-            required
-          />
-        </label>
-
-        <label className="auth-field">
-          <span>Mật khẩu</span>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Ít nhất 6 ký tự"
-            required
-          />
-        </label>
-
-        <label className="auth-field">
-          <span>Xác nhận mật khẩu</span>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="••••••••"
-            required
-          />
-        </label>
-
-        <button className="auth-submit" type="submit" disabled={submitting}>
-          {submitting ? "Đang tạo tài khoản..." : "Đăng ký"}
-        </button>
-
-        <p className="auth-card__footer">
-          Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
-        </p>
-      </form>
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={s.logo}>🛍️ ShopHub</div>
+        <h2 style={s.title}>Tạo tài khoản</h2>
+        <p style={s.sub}>Tham gia ShopHub ngay hôm nay!</p>
+        {error && <div style={s.error}>{error}</div>}
+        {success && <div style={s.success}>{success}</div>}
+        <form onSubmit={handleSubmit}>
+          <label style={s.label}>Tên đăng nhập *</label>
+          <input style={s.input} value={form.username} onChange={set("username")} placeholder="Tên đăng nhập" required />
+          <label style={s.label}>Email</label>
+          <input style={s.input} type="email" value={form.email} onChange={set("email")} placeholder="Email (tùy chọn)" />
+          <label style={s.label}>Mật khẩu *</label>
+          <input style={s.input} type="password" value={form.password} onChange={set("password")} placeholder="Tối thiểu 6 ký tự" required />
+          <label style={s.label}>Xác nhận mật khẩu *</label>
+          <input style={s.input} type="password" value={form.confirm} onChange={set("confirm")} placeholder="Nhập lại mật khẩu" required />
+          <button type="submit" style={s.btn} disabled={loading}>
+            {loading ? "Đang đăng ký..." : "Đăng ký"}
+          </button>
+        </form>
+        <p style={s.footer}>Đã có tài khoản? <Link to="/login" style={s.link}>Đăng nhập</Link></p>
+      </div>
     </div>
   );
-};
+}
 
-export default RegisterPage;
+const s = {
+  page: { minHeight:"100vh", background:"linear-gradient(135deg,#f0f4ff,#faf5ff)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Segoe UI', sans-serif" },
+  card: { background:"#fff", borderRadius:24, padding:"48px 40px", width:420, boxShadow:"0 16px 48px rgba(99,102,241,0.15)" },
+  logo: { fontSize:28, fontWeight:800, textAlign:"center", marginBottom:24 },
+  title: { fontSize:28, fontWeight:800, color:"#0f172a", margin:"0 0 6px", textAlign:"center" },
+  sub: { color:"#64748b", textAlign:"center", margin:"0 0 28px" },
+  error: { background:"#fef2f2", border:"1px solid #fecaca", color:"#ef4444", padding:"12px 16px", borderRadius:10, marginBottom:16, fontSize:14 },
+  success: { background:"#f0fdf4", border:"1px solid #bbf7d0", color:"#16a34a", padding:"12px 16px", borderRadius:10, marginBottom:16, fontSize:14 },
+  label: { display:"block", fontSize:14, fontWeight:600, color:"#374151", marginBottom:6 },
+  input: { width:"100%", padding:"12px 16px", border:"2px solid #e2e8f0", borderRadius:10, fontSize:15, marginBottom:16, boxSizing:"border-box", outline:"none" },
+  btn: { width:"100%", padding:"14px", background:"linear-gradient(135deg,#6366f1,#a855f7)", color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:16, cursor:"pointer" },
+  footer: { textAlign:"center", marginTop:20, color:"#64748b", fontSize:14 },
+  link: { color:"#6366f1", fontWeight:600 },
+};

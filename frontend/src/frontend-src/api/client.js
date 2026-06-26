@@ -1,40 +1,41 @@
-// Base URL của backend FastAPI
+import axios from "axios";
+
+// Theory: Axios GET - thư viện HTTP mạnh hơn fetch
+// - Tự động parse JSON
+// - Interceptors: tự gắn token, xử lý lỗi tập trung
+// - Hỗ trợ cancel request, timeout, progress
+
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
-// Hàm gọi API chung, tự gắn JWT token nếu có trong localStorage
-async function request(endpoint, options = {}) {
+// Tạo axios instance với cấu hình mặc định
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000, // 10 giây timeout
+  headers: { "Content-Type": "application/json" },
+});
+
+// Request Interceptor: tự động gắn JWT token vào mọi request
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("shophub_token");
-
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
-
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  // Cố gắng parse JSON, nếu rỗng thì trả null
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = data?.detail || "Đã có lỗi xảy ra, vui lòng thử lại.";
-    throw new Error(message);
+// Response Interceptor: xử lý lỗi tập trung
+axiosInstance.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const message =
+      error.response?.data?.detail || "Đã có lỗi xảy ra, vui lòng thử lại.";
+    return Promise.reject(new Error(message));
   }
-
-  return data;
-}
+);
 
 export const apiClient = {
-  get: (endpoint) => request(endpoint, { method: "GET" }),
-  post: (endpoint, body) =>
-    request(endpoint, { method: "POST", body: JSON.stringify(body) }),
-  put: (endpoint, body) =>
-    request(endpoint, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (endpoint) => request(endpoint, { method: "DELETE" }),
+  get: (endpoint, params) => axiosInstance.get(endpoint, { params }),
+  post: (endpoint, body) => axiosInstance.post(endpoint, body),
+  put: (endpoint, body) => axiosInstance.put(endpoint, body),
+  delete: (endpoint) => axiosInstance.delete(endpoint),
 };

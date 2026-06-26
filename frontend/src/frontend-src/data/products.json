@@ -1,66 +1,38 @@
 [
-  {
-    "id": 1,
-    "name": "Áo Thun Basic",
-    "price": 199000,
+  { "id": 1, "name": "Áo Thun Basic", "price": 199000, "category": "Áo", "stock": 50,
     "image": "https://placehold.co/300x300/4f46e5/ffffff?text=Ao+Thun",
-    "category": "Áo",
-    "description": "Áo thun cotton 100%, form rộng, thoáng mát."
-  },
-  {
-    "id": 2,
-    "name": "Quần Jeans Slimfit",
-    "price": 459000,
+    "description": "Áo thun cotton 100%, form rộng, thoáng mát" },
+  { "id": 2, "name": "Quần Jeans Slimfit", "price": 459000, "category": "Quần", "stock": 30,
     "image": "https://placehold.co/300x300/16a34a/ffffff?text=Quan+Jeans",
-    "category": "Quần",
-    "description": "Quần jeans co giãn nhẹ, dáng slimfit hiện đại."
-  },
-  {
-    "id": 3,
-    "name": "Giày Sneaker Trắng",
-    "price": 799000,
+    "description": "Quần jeans co giãn nhẹ, dáng slimfit hiện đại" },
+  { "id": 3, "name": "Giày Sneaker Trắng", "price": 799000, "category": "Giày", "stock": 20,
     "image": "https://placehold.co/300x300/dc2626/ffffff?text=Sneaker",
-    "category": "Giày",
-    "description": "Giày sneaker da tổng hợp, đế êm, phối mọi outfit."
-  },
-  {
-    "id": 4,
-    "name": "Túi Đeo Chéo",
-    "price": 350000,
+    "description": "Giày sneaker da tổng hợp, đế êm, phối mọi outfit" },
+  { "id": 4, "name": "Túi Đeo Chéo", "price": 350000, "category": "Phụ kiện", "stock": 40,
     "image": "https://placehold.co/300x300/d97706/ffffff?text=Tui+Cheo",
-    "category": "Phụ kiện",
-    "description": "Túi đeo chéo unisex, nhiều ngăn tiện lợi."
-  },
-  {
-    "id": 5,
-    "name": "Áo Khoác Hoodie",
-    "price": 520000,
+    "description": "Túi đeo chéo unisex, nhiều ngăn tiện lợi" },
+  { "id": 5, "name": "Áo Khoác Hoodie", "price": 520000, "category": "Áo", "stock": 25,
     "image": "https://placehold.co/300x300/0891b2/ffffff?text=Hoodie",
-    "category": "Áo",
-    "description": "Hoodie nỉ bông dày dặn, giữ ấm tốt."
-  },
-  {
-    "id": 6,
-    "name": "Mũ Lưỡi Trai",
-    "price": 150000,
+    "description": "Hoodie nỉ bông dày dặn, giữ ấm tốt" },
+  { "id": 6, "name": "Mũ Lưỡi Trai", "price": 150000, "category": "Phụ kiện", "stock": 60,
     "image": "https://placehold.co/300x300/7c3aed/ffffff?text=Mu",
-    "category": "Phụ kiện",
-    "description": "Mũ lưỡi trai unisex, điều chỉnh size dễ dàng."
-  },
-  {
-    "id": 7,
-    "name": "Đồng Hồ Đeo Tay",
-    "price": 890000,
+    "description": "Mũ lưỡi trai unisex, điều chỉnh size dễ dàng" },
+  { "id": 7, "name": "Đồng Hồ Đeo Tay", "price": 890000, "category": "Phụ kiện", "stock": 15,
     "image": "https://placehold.co/300x300/be123c/ffffff?text=Dong+Ho",
-    "category": "Phụ kiện",
-    "description": "Đồng hồ mặt tròn, dây da, chống nước."
-  },
-  {
-    "id": 8,
-    "name": "Quần Short Kaki",
-    "price": 280000,
+    "description": "Đồng hồ mặt tròn, dây da, chống nước" },
+  { "id": 8, "name": "Quần Short Kaki", "price": 280000, "category": "Quần", "stock": 35,
     "image": "https://placehold.co/300x300/65a30d/ffffff?text=Short",
-    "category": "Quần",
-    "description": "Quần short kaki nam, chất liệu thoáng khí."
-  }
+    "description": "Quần short kaki nam, chất liệu thoáng khí" },
+  { "id": 9, "name": "Áo Sơ Mi Trắng", "price": 320000, "category": "Áo", "stock": 45,
+    "image": "https://placehold.co/300x300/6366f1/ffffff?text=So+Mi",
+    "description": "Áo sơ mi trắng công sở, vải lụa mềm mại" },
+  { "id": 10, "name": "Giày Cao Gót", "price": 650000, "category": "Giày", "stock": 18,
+    "image": "https://placehold.co/300x300/ec4899/ffffff?text=Cao+Got",
+    "description": "Giày cao gót 7cm, da thật, nhiều màu" },
+  { "id": 11, "name": "Thắt Lưng Da", "price": 220000, "category": "Phụ kiện", "stock": 30,
+    "image": "https://placehold.co/300x300/92400e/ffffff?text=That+Lung",
+    "description": "Thắt lưng da bò thật, khóa hợp kim" },
+  { "id": 12, "name": "Quần Âu Nam", "price": 480000, "category": "Quần", "stock": 22,
+    "image": "https://placehold.co/300x300/1e40af/ffffff?text=Quan+Au",
+    "description": "Quần âu nam công sở, dáng thẳng lịch lãm" }
 ]
