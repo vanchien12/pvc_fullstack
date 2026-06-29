@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.shop_security import get_db, require_admin
+from app.core.shop_security import get_db
 from app.crud import product as product_crud
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 
@@ -12,7 +12,6 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ProductOut])
 def list_products(db: Session = Depends(get_db)):
-    """Danh sách sản phẩm - public, ai cũng xem được."""
     return product_crud.get_products(db)
 
 
@@ -25,22 +24,12 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ProductOut, status_code=201)
-def create_product(
-    data: ProductCreate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin),
-):
-    """Thêm sản phẩm - chỉ admin."""
+def create_product(data: ProductCreate, db: Session = Depends(get_db)):
     return product_crud.create_product(db, data)
 
 
 @router.put("/{product_id}", response_model=ProductOut)
-def update_product(
-    product_id: int,
-    data: ProductUpdate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin),
-):
+def update_product(product_id: int, data: ProductUpdate, db: Session = Depends(get_db)):
     product = product_crud.get_product(db, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm.")
@@ -48,11 +37,7 @@ def update_product(
 
 
 @router.delete("/{product_id}")
-def delete_product(
-    product_id: int,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin),
-):
+def delete_product(product_id: int, db: Session = Depends(get_db)):
     product = product_crud.get_product(db, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm.")

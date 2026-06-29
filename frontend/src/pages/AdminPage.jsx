@@ -1,63 +1,106 @@
 // frontend/src/pages/AdminPage.jsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api";
 
+const BASE_URL = "http://localhost:8000/api/v1";
+const getToken = () => localStorage.getItem("shophub_token");
+
+const authFetch = (url, options = {}) =>
+  fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+      ...(options.headers || {}),
+    },
+  });
+
 export default function AdminPage() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [tab, setTab] = useState("products");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [form, setForm] = useState({ name:"", price:"", image:"", description:"", stock:"", category:"Áo" });
+  const [form, setForm] = useState({ name:"", price:"150000", image:"", description:"", stock:"50", category:"Áo" });
   const [editing, setEditing] = useState(null);
   const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState("success");
 
   useEffect(() => {
-    api.get("/products").then(setProducts);
+    api.get("/products").then(setProducts).catch(console.error);
     api.get("/orders").then(setOrders).catch(() => {});
   }, []);
 
-  const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(""), 3000); };
+  const showMsg = (m, type = "success") => {
+    setMsg(m); setMsgType(type);
+    setTimeout(() => setMsg(""), 3000);
+  };
 
   const handleSaveProduct = async () => {
-    if (!form.name || !form.price) return showMsg("Vui lòng nhập tên và giá!");
-    const body = { ...form, price: Number(form.price), stock: Number(form.stock) || 0 };
+    if (!form.name || !form.price) return showMsg("Vui lòng nhập tên và giá!", "error");
+    const body = {
+      name: form.name,
+      price: Number(form.price),
+      stock: Number(form.stock) || 0,
+      category: form.category,
+      image: form.image || null,
+      description: form.description || null,
+    };
     try {
       if (editing) {
-        const res = await fetch(`http://localhost:8000/api/v1/products/${editing}`, {
-          method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+        const res = await authFetch(`${BASE_URL}/products/${editing}`, {
+          method: "PUT",
+          body: JSON.stringify(body),
         });
+        if (!res.ok) {
+          const err = await res.json();
+          return showMsg("❌ " + (err.detail || "Lỗi cập nhật!"), "error");
+        }
         const updated = await res.json();
         setProducts(ps => ps.map(p => p.id === editing ? updated : p));
         showMsg("✅ Cập nhật thành công!");
       } else {
-        const res = await fetch("http://localhost:8000/api/v1/products", {
-          method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+        const res = await authFetch(`${BASE_URL}/products/`, {
+          method: "POST",
+          body: JSON.stringify(body),
         });
+        if (!res.ok) {
+          const err = await res.json();
+          return showMsg("❌ " + (err.detail || "Lỗi thêm sản phẩm!"), "error");
+        }
         const newP = await res.json();
         setProducts(ps => [...ps, newP]);
         showMsg("✅ Thêm sản phẩm thành công!");
       }
-      setForm({ name:"", price:"", image:"", description:"", stock:"", category:"Áo" });
+      setForm({ name:"", price:"150000", image:"", description:"", stock:"50", category:"Áo" });
       setEditing(null);
-    } catch { showMsg("❌ Có lỗi xảy ra!"); }
+    } catch (e) {
+      showMsg("❌ Có lỗi xảy ra: " + e.message, "error");
+    }
   };
 
   const handleEdit = (p) => {
-    setForm({ name:p.name, price:String(p.price), image:p.image||"", description:p.description||"", stock:String(p.stock||0), category:p.category||"Áo" });
+    setForm({
+      name: p.name,
+      price: String(p.price),
+      image: p.image || "",
+      description: p.description || "",
+      stock: String(p.stock || 0),
+      category: p.category || "Áo",
+    });
     setEditing(p.id);
-    setTab("products");
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Xóa sản phẩm này?")) return;
-    await fetch(`http://localhost:8000/api/v1/products/${id}`, { method:"DELETE" });
-    setProducts(ps => ps.filter(p => p.id !== id));
-    showMsg("🗑️ Đã xóa sản phẩm!");
+    try {
+      const res = await authFetch(`${BASE_URL}/products/${id}`, { method: "DELETE" });
+      if (!res.ok) return showMsg("❌ Không thể xóa!", "error");
+      setProducts(ps => ps.filter(p => p.id !== id));
+      showMsg("🗑️ Đã xóa sản phẩm!");
+    } catch { showMsg("❌ Lỗi xóa sản phẩm!", "error"); }
   };
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
@@ -73,17 +116,24 @@ export default function AdminPage() {
     <div style={{ fontFamily:"'Segoe UI', sans-serif", background:"#f1f5f9", minHeight:"100vh" }}>
       <Navbar />
       <div style={s.container}>
-        {/* Header */}
         <div style={s.header}>
           <div>
             <h1 style={s.title}>🛠️ Trang quản trị</h1>
-            <p style={s.sub}>Xin chào, <strong>{user?.username}</strong>! Vai trò: Admin</p>
+            <p style={s.sub}>Xin chào, <strong>{user?.name || user?.email}</strong>! Vai trò: Admin</p>
           </div>
         </div>
 
-        {msg && <div style={s.msgBar}>{msg}</div>}
+        {msg && (
+          <div style={{
+            ...s.msgBar,
+            background: msgType === "error" ? "#fef2f2" : "#f0fdf4",
+            border: `1px solid ${msgType === "error" ? "#fecaca" : "#bbf7d0"}`,
+            color: msgType === "error" ? "#dc2626" : "#16a34a",
+          }}>
+            {msg}
+          </div>
+        )}
 
-        {/* Stats */}
         <div style={s.statsGrid}>
           {stats.map(st => (
             <div key={st.label} style={{ ...s.statCard, background:st.color }}>
@@ -96,10 +146,10 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Tabs */}
         <div style={s.tabs}>
           {["products","orders"].map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ ...s.tab, ...(tab===t ? s.tabActive : {}) }}>
+            <button key={t} onClick={() => setTab(t)}
+              style={{ ...s.tab, ...(tab===t ? s.tabActive : {}) }}>
               {t === "products" ? "📦 Sản phẩm" : "📋 Đơn hàng"}
             </button>
           ))}
@@ -107,7 +157,6 @@ export default function AdminPage() {
 
         {tab === "products" && (
           <div style={s.panel}>
-            {/* Form thêm/sửa */}
             <div style={s.formCard}>
               <h3 style={s.formTitle}>{editing ? "✏️ Sửa sản phẩm" : "➕ Thêm sản phẩm mới"}</h3>
               <div style={s.formGrid}>
@@ -122,7 +171,7 @@ export default function AdminPage() {
                 <div>
                   <label style={s.label}>Danh mục</label>
                   <select style={s.input} value={form.category} onChange={set("category")}>
-                    {["Áo","Quần","Giày","Túi"].map(c => <option key={c}>{c}</option>)}
+                    {["Áo","Quần","Giày","Túi","Khác"].map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
@@ -142,43 +191,55 @@ export default function AdminPage() {
                 <button style={s.saveBtn} onClick={handleSaveProduct}>
                   {editing ? "💾 Lưu thay đổi" : "➕ Thêm sản phẩm"}
                 </button>
-                {editing && <button style={s.cancelBtn} onClick={() => { setEditing(null); setForm({ name:"", price:"", image:"", description:"", stock:"", category:"Áo" }); }}>Hủy</button>}
+                {editing && (
+                  <button style={s.cancelBtn} onClick={() => {
+                    setEditing(null);
+                    setForm({ name:"", price:"150000", image:"", description:"", stock:"50", category:"Áo" });
+                  }}>Hủy</button>
+                )}
               </div>
             </div>
 
-            {/* Product Table */}
             <div style={s.tableCard}>
               <h3 style={s.formTitle}>Danh sách sản phẩm ({products.length})</h3>
-              <table style={s.table}>
-                <thead>
-                  <tr style={s.thead}>
-                    <th style={s.th}>Sản phẩm</th>
-                    <th style={s.th}>Danh mục</th>
-                    <th style={s.th}>Giá</th>
-                    <th style={s.th}>Tồn kho</th>
-                    <th style={s.th}>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map(p => (
-                    <tr key={p.id} style={s.tr}>
-                      <td style={s.td}>
-                        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                          <img src={p.image} alt={p.name} style={{ width:48, height:48, borderRadius:10, objectFit:"cover" }} />
-                          <span style={{ fontWeight:600 }}>{p.name}</span>
-                        </div>
-                      </td>
-                      <td style={s.td}><span style={s.catBadge}>{p.category}</span></td>
-                      <td style={s.td}><strong style={{ color:"#ef4444" }}>{p.price?.toLocaleString("vi-VN")}đ</strong></td>
-                      <td style={s.td}>{p.stock}</td>
-                      <td style={s.td}>
-                        <button style={s.editBtn} onClick={() => handleEdit(p)}>✏️ Sửa</button>
-                        <button style={s.deleteBtn} onClick={() => handleDelete(p.id)}>🗑️ Xóa</button>
-                      </td>
+              {products.length === 0 ? (
+                <div style={{ textAlign:"center", padding:40, color:"#64748b" }}>Chưa có sản phẩm nào</div>
+              ) : (
+                <table style={s.table}>
+                  <thead>
+                    <tr style={s.thead}>
+                      <th style={s.th}>Sản phẩm</th>
+                      <th style={s.th}>Danh mục</th>
+                      <th style={s.th}>Giá</th>
+                      <th style={s.th}>Tồn kho</th>
+                      <th style={s.th}>Thao tác</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {products.map(p => (
+                      <tr key={p.id} style={s.tr}>
+                        <td style={s.td}>
+                          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                            {p.image ? (
+                              <img src={p.image} alt={p.name} style={{ width:48, height:48, borderRadius:10, objectFit:"cover" }} />
+                            ) : (
+                              <div style={{ width:48, height:48, borderRadius:10, background:"#e2e8f0", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>📦</div>
+                            )}
+                            <span style={{ fontWeight:600 }}>{p.name}</span>
+                          </div>
+                        </td>
+                        <td style={s.td}><span style={s.catBadge}>{p.category || "—"}</span></td>
+                        <td style={s.td}><strong style={{ color:"#ef4444" }}>{p.price?.toLocaleString("vi-VN")}đ</strong></td>
+                        <td style={s.td}>{p.stock}</td>
+                        <td style={s.td}>
+                          <button style={s.editBtn} onClick={() => handleEdit(p)}>✏️ Sửa</button>
+                          <button style={s.deleteBtn} onClick={() => handleDelete(p.id)}>🗑️ Xóa</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         )}
@@ -203,11 +264,15 @@ export default function AdminPage() {
                   {orders.map(o => (
                     <tr key={o.id} style={s.tr}>
                       <td style={s.td}>#{o.id}</td>
-                      <td style={s.td}><strong>{o.customerName}</strong></td>
+                      <td style={s.td}><strong>{o.customer_name}</strong></td>
                       <td style={s.td}>{o.phone || "—"}</td>
                       <td style={s.td}><strong style={{ color:"#ef4444" }}>{o.total?.toLocaleString("vi-VN")}đ</strong></td>
                       <td style={s.td}>
-                        <span style={{ ...s.statusBadge, background: o.status==="approved"?"#d1fae5":o.status==="rejected"?"#fef2f2":"#fef3c7", color:o.status==="approved"?"#16a34a":o.status==="rejected"?"#ef4444":"#d97706" }}>
+                        <span style={{
+                          ...s.statusBadge,
+                          background: o.status==="approved"?"#d1fae5":o.status==="rejected"?"#fef2f2":"#fef3c7",
+                          color: o.status==="approved"?"#16a34a":o.status==="rejected"?"#ef4444":"#d97706"
+                        }}>
                           {o.status === "approved" ? "✅ Đã duyệt" : o.status === "rejected" ? "❌ Từ chối" : "⏳ Chờ duyệt"}
                         </span>
                       </td>
@@ -228,7 +293,7 @@ const s = {
   header: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 },
   title: { fontSize:28, fontWeight:800, color:"#0f172a", margin:"0 0 4px" },
   sub: { color:"#64748b", margin:0 },
-  msgBar: { background:"#f0fdf4", border:"1px solid #bbf7d0", color:"#16a34a", padding:"12px 20px", borderRadius:12, marginBottom:20, fontWeight:600 },
+  msgBar: { padding:"12px 20px", borderRadius:12, marginBottom:20, fontWeight:600 },
   statsGrid: { display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:28 },
   statCard: { borderRadius:16, padding:"20px 24px", display:"flex", alignItems:"center", gap:16 },
   tabs: { display:"flex", gap:4, background:"#fff", borderRadius:12, padding:4, marginBottom:24, width:"fit-content", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" },

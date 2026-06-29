@@ -1,16 +1,15 @@
 // frontend/src/pages/CartPage.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 import { api } from "../api";
 
 export default function CartPage() {
   const { items, updateQty, removeItem, clearCart, total } = useCart();
-  const [form, setForm] = useState({ customerName:"", phone:"", address:"" });
+  const [form, setForm] = useState({ customer_name:"", phone:"", address:"" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
 
   const handleOrder = async (e) => {
     e.preventDefault();
@@ -18,10 +17,10 @@ export default function CartPage() {
     setLoading(true);
     try {
       await api.post("/orders", {
-        customerName: form.customerName,
+        customer_name: form.customer_name,  // ← đúng tên field backend
         phone: form.phone,
         address: form.address,
-        items: items.map(i => ({ productId: i.id, quantity: i.qty })),
+        items: items.map(i => ({ product_id: i.id, quantity: i.qty })),  // ← product_id
       });
       clearCart();
       setSuccess(true);
@@ -57,10 +56,14 @@ export default function CartPage() {
           </div>
         ) : (
           <div style={s.layout}>
+            {/* Danh sách sản phẩm */}
             <div style={{ flex:1 }}>
               {items.map(item => (
                 <div key={item.id} style={s.item}>
-                  <img src={item.image} alt={item.name} style={s.itemImg} />
+                  {item.image
+                    ? <img src={item.image} alt={item.name} style={s.itemImg} />
+                    : <div style={{ ...s.itemImg, background:"#e2e8f0", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28 }}>📦</div>
+                  }
                   <div style={{ flex:1 }}>
                     <div style={s.itemName}>{item.name}</div>
                     <div style={s.itemPrice}>{item.price.toLocaleString("vi-VN")}đ</div>
@@ -76,18 +79,37 @@ export default function CartPage() {
               ))}
             </div>
 
+            {/* Form đặt hàng */}
             <div style={s.summary}>
               <h3 style={{ fontSize:20, fontWeight:700, margin:"0 0 24px" }}>Thông tin đặt hàng</h3>
               <form onSubmit={handleOrder}>
                 <label style={s.label}>Tên người nhận *</label>
-                <input style={s.input} value={form.customerName} onChange={e => setForm(f => ({ ...f, customerName:e.target.value }))} placeholder="Họ và tên" required />
+                <input
+                  style={s.input}
+                  value={form.customer_name}
+                  onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))}
+                  placeholder="Họ và tên"
+                  required
+                />
                 <label style={s.label}>Số điện thoại</label>
-                <input style={s.input} value={form.phone} onChange={e => setForm(f => ({ ...f, phone:e.target.value }))} placeholder="0xxxxxxxxx" />
+                <input
+                  style={s.input}
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  placeholder="0xxxxxxxxx"
+                />
                 <label style={s.label}>Địa chỉ giao hàng</label>
-                <textarea style={{ ...s.input, height:80, resize:"vertical" }} value={form.address} onChange={e => setForm(f => ({ ...f, address:e.target.value }))} placeholder="Địa chỉ chi tiết..." />
+                <textarea
+                  style={{ ...s.input, height:80, resize:"vertical" }}
+                  value={form.address}
+                  onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+                  placeholder="Địa chỉ chi tiết..."
+                />
                 <div style={s.totalRow}>
-                  <span>Tổng cộng:</span>
-                  <span style={{ color:"#ef4444", fontWeight:800, fontSize:22 }}>{total.toLocaleString("vi-VN")}đ</span>
+                  <span style={{ fontWeight:600 }}>Tổng cộng:</span>
+                  <span style={{ color:"#ef4444", fontWeight:800, fontSize:22 }}>
+                    {total.toLocaleString("vi-VN")}đ
+                  </span>
                 </div>
                 <button type="submit" style={s.orderBtn} disabled={loading}>
                   {loading ? "Đang đặt hàng..." : "✅ Đặt hàng ngay"}

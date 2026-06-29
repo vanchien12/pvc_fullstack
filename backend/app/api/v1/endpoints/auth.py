@@ -8,7 +8,7 @@ from app.core.security import verify_password, create_access_token
 from app.api.deps import get_current_user
 from app.models.user import User
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(tags=["Authentication"])  # ← đã bỏ prefix="/auth"
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -36,9 +36,7 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
             detail="Email hoặc mật khẩu không đúng",
         )
 
-    # "sub" trong JWT payload lưu user id, dùng để xác định user ở các request sau
     access_token = create_access_token(data={"sub": str(user.id)})
-
     return TokenResponse(access_token=access_token, user=user)
 
 
